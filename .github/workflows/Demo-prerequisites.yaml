@@ -1,0 +1,37 @@
+name: Demo-prerequisites
+
+on:
+  workflow_dispatch:
+    inputs:
+      demo_prereqs:
+        description: 'Create the S3 state bucket and DynamoDB for locks'
+        required: true
+        default: 'false'
+
+jobs:
+  provision_demo_prereqs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'eu-west-2'  # Replace with your desired AWS region
+
+      - name: Create S3 bucket for state
+        if: ${{ github.event.inputs.demo_prereqs == 'true' }}
+        run: |
+          aws s3api create-bucket --bucket ne-tf-s3-state --region eu-west-2
+
+      - name: Create DynamoDB table for locks
+        if: ${{ github.event.inputs.demo_prereqs == 'true' }}
+        run: |
+          aws dynamodb create-table \
+            --table-name terraform_locks \
+            --attribute-definitions AttributeName=LockID,AttributeType=S \
+            --key-schema AttributeName=LockID,KeyType=HASH \
+            --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
