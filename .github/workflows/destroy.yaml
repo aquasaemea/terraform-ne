@@ -33,12 +33,19 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
 
-      - name: Manual Approval for Destroy
-        if: ${{ github.event.inputs.destroy_resources == 'true' }}
+      - name: Org Team Manual Approval
+        uses: tibdex/github-app-token@v1
+        id: generate_token
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      
+      - name: Manual Approval
         uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ secrets.GH_TOKEN }}
-          approvers: sonnambulo
+          secret: ${{ steps.generate_token.outputs.token }}
+          approvers: ${{ secrets.ORG_TEAM }}
+          minimum-approvals: 1
 
       - name: Destroy Terraform Resources
         if: ${{ github.event.inputs.destroy_resources == 'true' }}
