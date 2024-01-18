@@ -10,9 +10,9 @@ There were three key criteria that also need to be met:
 
 **N.B.**
 1. You will need to have the correct Secrets and Variables configured for this tor work and
-2. You will need to have required AWS CLi configuration already in place.
+2. You will need to have required AWS CLI configuration already in place.
 
-**Variables required:**
+**Secrets required:**
 
 AQUA_KEY,
 
